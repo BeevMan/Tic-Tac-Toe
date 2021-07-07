@@ -1,14 +1,12 @@
-/*
-
-Think carefully about where each bit of logic should reside. Each little piece of functionality should be able to fit in the game, 
-    player or gameboard objects.. but take care to put them in “logical” places.
-Spending a little time brainstorming here can make your life much easier later!
-
-// game and gameboard will be modules, since they will only have 1 each
-// player will be a factory function, since it will have more then 1 
-*/
 const gameBoard = (() => {
     const allGrids = [ ... document.getElementsByClassName( "grid-piece" ) ];
+
+    const addListenersToGrids = () => {
+        allGrids.forEach(grid => {
+            grid.addEventListener( "click", game.handleMove )
+        });
+    };
+
     const winCombinations = {
         topRow : [ allGrids[0], allGrids[1], allGrids[2] ],
         midRow : [ allGrids[3], allGrids[4], allGrids[5] ],
@@ -20,25 +18,76 @@ const gameBoard = (() => {
         
         diagLine1 : [ allGrids[0], allGrids[4], allGrids[8] ],
         diagLine2 : [ allGrids[2], allGrids[4], allGrids[6] ]
-    }
-    return { winCombinations }
+    };
+
+    
+
+    return { winCombinations, allGrids, addListenersToGrids }
 
 })();
+
+
 
 
 const game = (() => {
-    const curBoard = gameBoard.winCombinations;
-    const winCheck = ( curBoard ) => {
+    
+    const winCheck = () => {
+        const curBoard = gameBoard.winCombinations;
         for ( let combo in curBoard ) {
-            console.log( combo );
+            const curCombo = curBoard[ combo ];
+            if ( curCombo[ 0 ].innerText !== "" ) { // first combo position contains a symbol
+                if ( curCombo[ 0 ].innerText === curCombo[ 1 ].innerText && curCombo[ 0 ].innerText === curCombo[ 2 ].innerText ) { // all 3 combo positions contain the same symbol
+                    return curCombo[0].innerText + " has won!!!" ;
+                }
+            }
         }
     };
-    return { winCheck }
+
+    const isTie = () => {
+        const gridSpots = gameBoard.allGrids;
+        for ( let i = 0; i<gridSpots.length; i++ ) {
+            if ( gridSpots[ i ].innerText === "" ) {
+                break // there was an empty spot on the gamesGrid 
+            } else if ( i === gridSpots.length -1 ) {
+                return true // all spots in the gamesGrid are occupied!!!
+            }
+        }
+    };
+
+
+    let curSymbol = "X";
+    const handleMove = ( e ) => {
+        if ( e.target.innerText === "" ) {
+            e.target.innerText = curSymbol;
+            if ( winCheck() ) {
+                return console.log( winCheck() )
+            } else if ( isTie() ) {
+                return console.log( "Game Tied!" )
+            }
+            curSymbol === "X" ? curSymbol = "O" : curSymbol = "X"; // if move was made alternate between X and O for curSymbol
+        }
+    };
+
+    return { handleMove }
 
 })();
+
+
+
+
+const displayController = (() => {
+
+})();
+
+
 
 
 const Player = (name) => {
 
     return { name }
 }
+
+
+
+
+gameBoard.addListenersToGrids()
