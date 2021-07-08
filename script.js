@@ -57,7 +57,7 @@ const game = (() => {
 
     let curSymbol = "X";
     const handleMove = ( e ) => {
-        if ( e.target.innerText === "" ) {
+        if ( e.target.innerText === "" ) { // STILL NEED TO PUT A CHECK IN HERE FOR WHEN THE GAME IS FINISHED, check the h1 element where the game messages are going to be displayed
             e.target.innerText = curSymbol;
             if ( winCheck() ) {
                 return console.log( winCheck() )
@@ -68,7 +68,13 @@ const game = (() => {
         }
     };
 
-    return { handleMove }
+    // STILL NEED TO WRITE THIS & incorporate it into the rest of the logic
+    let curPlayers = {};
+        curPlayers.x = "Player1";
+        curPlayers.o = "Player2";
+    //};
+
+    return { handleMove, curPlayers }
 
 })();
 
@@ -77,12 +83,22 @@ const game = (() => {
 
 const displayController = (() => {
 
+    // when game starts, take away player name input and add a restart button
+    // display who's turn it is
+    // display when game is won/tied, reset button has to be pressed after? then displays user name inputs and takes away the restart button???
+
+
 })();
 
 
 
 
 const Player = (name) => {
+    // attempt to make player when game starts
+    // check if player already exists?
+        // if player exists change player's symbol if it is different
+    // if player does not exist, create player and store their symbol
+    
 
     return { name }
 }
