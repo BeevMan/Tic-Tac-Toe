@@ -68,13 +68,18 @@ const game = (() => {
         }
     };
 
-    // STILL NEED TO WRITE THIS & incorporate it into the rest of the logic
-    let curPlayers = {};
-        curPlayers.x = "Player1";
-        curPlayers.o = "Player2";
-    //};
+    let curPlayers = {}; // setPlayers() assigns x and o's keys/values
 
-    return { handleMove, curPlayers }
+    const setPlayers = () => {
+        curPlayers.x = document.getElementById( "player1" ).value || "Player1";
+        curPlayers.o = document.getElementById( "player2" ).value || "Player2";
+    };
+
+    const getPlayersName = () => {
+        return curPlayers
+    };
+
+    return { handleMove, setPlayers, getPlayersName }
 
 })();
 
