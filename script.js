@@ -66,7 +66,7 @@ const game = (() => {
     };
 
     const isGameOver = () => {
-        if ( displayController.textDisplay === displayController.displayStrs[ "win" ] || displayController.textDisplay === displayController.displayStrs[ "tie" ] ) {
+        if ( displayController.textDisplay().endsWith( displayController.displayStrs[ "win" ] ) || displayController.textDisplay().endsWith( displayController.displayStrs[ "tie" ] ) ) {
             return true
         }
         return false
@@ -74,7 +74,8 @@ const game = (() => {
 
     let curSymbol = "X";
     const handleMove = ( e ) => {
-        if ( e.target.innerText === "" && !isGameOver() ) {
+
+        if ( e.target.innerText === "" && isGameOver() == false ) {
             if ( isGridEmpty() ) {
                 setPlayers()
             }
@@ -116,33 +117,40 @@ const game = (() => {
 
 const displayController = (() => {
     const displayStrs = {
-        start: `${game.getPlayers().x}, make the first move!`,
+        start: ", make the first move!",
         tie: "Game Tied!",
-        win: `${game.getTurnsPlayerName()} has won!!!`,
-        turn: `${game.getTurnsPlayerName()}'s turn`
+        win: " has won!!!",
+        turn: "'s turn"
     };
 
     const elDisplay = document.getElementById( "text-display" );
-    const textDisplay = elDisplay.innerText;
+    const textDisplay = () => {
+       return elDisplay.innerText
+    };
+    let ogDisplayVal;
     const setTextDisplay = ( toDisplay ) => {
         if ( toDisplay === "win" || toDisplay === "tie" ) {
             // UNHIDE THE RESET BUTTON
-
-            const elNameInputs = document.getElementsByClassName( "name-inputs" );
-            elNameInputs[0].hidden = false;
-            elNameInputs[1].hidden = false;
-        } else if ( toDisplay === "start" || textDisplay === "Player1, make the first move!" ) {
-            // HIDE THE RESET BUTTON
+            const elNameInputs = document.getElementById( "name-inputs" );
+            elNameInputs.style.display = ogDisplayVal;
         } else if ( toDisplay === "turn" ) {
-            const elNameInputs = document.getElementsByClassName( "name-inputs" );
-            if ( elNameInputs[0].hidden !== true ) {
-                elNameInputs[0].hidden = true;
-                elNameInputs[1].hidden = true;
+            const elNameInputs = document.getElementById( "name-inputs" );
+            if ( elNameInputs.style.display !== "none" ) {
+                ogDisplayVal = elNameInputs.style.display;
+                elNameInputs.style.display = "none";
             }
+        } else if ( toDisplay === "start" || textDisplay() === "Player1, make the first move!" ) {
+            // HIDE THE RESET BUTTON
         }
         
         if ( displayStrs[ toDisplay ] ) {
-            elDisplay.innerText = game.getTurnsPlayerName() + "'s turn"  // curPlayer + displayStrs[ toDisplay ]
+            if ( toDisplay === "tie" ) {
+                elDisplay.innerText = displayStrs[ toDisplay ]
+            } else if ( toDisplay === "start" ) {
+                elDisplay.innerText = game.getPlayers().x + displayStrs[ toDisplay ]
+            } else {
+                elDisplay.innerText = game.getTurnsPlayerName() + displayStrs[ toDisplay ]
+            }
         } else {
             console.log( "display string not found!" )
         }
@@ -151,19 +159,6 @@ const displayController = (() => {
     return { textDisplay, displayStrs, setTextDisplay }
 
 })();
-
-
-
-
-const Player = (name) => {
-    // attempt to make player when game starts
-    // check if player already exists?
-        // if player exists change player's symbol if it is different
-    // if player does not exist, create player and store their symbol
-    
-
-    return { name }
-}
 
 
 // ADD EVENT LISTENER TO THE RESET BUTTON
