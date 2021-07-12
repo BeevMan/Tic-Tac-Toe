@@ -37,7 +37,7 @@ const game = (() => {
             const curCombo = curBoard[ combo ];
             if ( curCombo[ 0 ].innerText !== "" ) { // first combo position contains a symbol
                 if ( curCombo[ 0 ].innerText === curCombo[ 1 ].innerText && curCombo[ 0 ].innerText === curCombo[ 2 ].innerText ) { // all 3 combo positions contain the same symbol
-                    return curCombo[0].innerText + " has won!!!" ;
+                    return true ;
                 }
             }
         }
@@ -54,17 +54,40 @@ const game = (() => {
         }
     };
 
+    const isGridEmpty = () => {
+        const gridSpots = gameBoard.allGrids;
+        for ( let i = 0; i<gridSpots.length; i++ ) {
+            if ( gridSpots[ i ].innerText !== "" ) {
+                break
+            } else if ( i === gridSpots.length - 1 ) {
+                return true
+            }
+        }
+    };
+
+    const isGameOver = () => {
+        if ( displayController.textDisplay === displayController.displayStrs[ "win" ] || displayController.textDisplay === displayController.displayStrs[ "tie" ] ) {
+            return true
+        }
+        return false
+    };
 
     let curSymbol = "X";
     const handleMove = ( e ) => {
-        if ( e.target.innerText === "" ) { // STILL NEED TO PUT A CHECK IN HERE FOR WHEN THE GAME IS FINISHED, check the h1 element where the game messages are going to be displayed
+        if ( e.target.innerText === "" && !isGameOver() ) {
+            if ( isGridEmpty() ) {
+                console.log( "players set" );
+                setPlayers()
+            }
+            
             e.target.innerText = curSymbol;
             if ( winCheck() ) {
-                return console.log( winCheck() )
+                return displayController.setTextDisplay( "win" )
             } else if ( isTie() ) {
-                return console.log( "Game Tied!" )
+                return displayController.setTextDisplay( "tie" )
             }
             curSymbol === "X" ? curSymbol = "O" : curSymbol = "X"; // if move was made alternate between X and O for curSymbol
+            displayController.setTextDisplay( "turn" )
         }
     };
 
@@ -75,11 +98,15 @@ const game = (() => {
         curPlayers.o = document.getElementById( "player2" ).value || "Player2";
     };
 
-    const getPlayersName = () => {
+    const getPlayers = () => {
         return curPlayers
     };
 
-    return { handleMove, setPlayers, getPlayersName }
+    const getTurnsPlayerName = () => {
+        return curPlayers[ curSymbol.toLowerCase() ]
+    };
+
+    return { handleMove, getPlayers, getTurnsPlayerName  }
 
 })();
 
@@ -87,11 +114,42 @@ const game = (() => {
 
 
 const displayController = (() => {
+    const playerX = game.getPlayers().x;
+    const curPlayer = game.getTurnsPlayerName();
+    const displayStrs = {
+        start: `${ playerX }, make the first move!`,
+        tie: "Game Tied!",
+        win: `${curPlayer} has won!!!`,
+        turn: `${curPlayer}'s turn`
+    };
 
-    // when game starts, take away player name input and add a restart button
-    // display who's turn it is
-    // display when game is won/tied, reset button has to be pressed after? then displays user name inputs and takes away the restart button???
+    const elDisplay = document.getElementById( "text-display" );
+    const textDisplay = elDisplay.innerText;
+    const setTextDisplay = ( toDisplay ) => {
+        if ( toDisplay === "win" || toDisplay === "tie" ) {
+            // UNHIDE THE RESET BUTTON
 
+            const elNameInputs = document.getElementsByClassName( "name-inputs" );
+            elNameInputs[0].hidden = false;
+            elNameInputs[1].hidden = false;
+        } else if ( toDisplay === "start" || textDisplay === "Player1, make the first move!" ) {
+            // HIDE THE RESET BUTTON
+        } else if ( toDisplay === "turn" ) {
+            const elNameInputs = document.getElementsByClassName( "name-inputs" );
+            if ( elNameInputs[0].hidden !== true ) {
+                elNameInputs[0].hidden = true;
+                elNameInputs[1].hidden = true;
+            }
+        }
+        
+        if ( displayStrs[ toDisplay ] ) {
+            elDisplay.innerText = displayStrs[ toDisplay ]
+        } else {
+            console.log( "display string not found!" )
+        }
+    }
+
+    return { textDisplay, displayStrs, setTextDisplay }
 
 })();
 
@@ -109,6 +167,6 @@ const Player = (name) => {
 }
 
 
-
+// ADD EVENT LISTENER TO THE RESET BUTTON
 
 gameBoard.addListenersToGrids()
