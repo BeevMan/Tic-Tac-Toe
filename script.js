@@ -76,15 +76,16 @@ const game = (() => {
     const handleMove = ( e ) => {
         if ( e.target.innerText === "" && !isGameOver() ) {
             if ( isGridEmpty() ) {
-                console.log( "players set" );
                 setPlayers()
             }
             
             e.target.innerText = curSymbol;
             if ( winCheck() ) {
-                return displayController.setTextDisplay( "win" )
+                displayController.setTextDisplay( "win" );
+                return
             } else if ( isTie() ) {
-                return displayController.setTextDisplay( "tie" )
+                displayController.setTextDisplay( "tie" );
+                return
             }
             curSymbol === "X" ? curSymbol = "O" : curSymbol = "X"; // if move was made alternate between X and O for curSymbol
             displayController.setTextDisplay( "turn" )
@@ -114,13 +115,11 @@ const game = (() => {
 
 
 const displayController = (() => {
-    const playerX = game.getPlayers().x;
-    const curPlayer = game.getTurnsPlayerName();
     const displayStrs = {
-        start: `${ playerX }, make the first move!`,
+        start: `${game.getPlayers().x}, make the first move!`,
         tie: "Game Tied!",
-        win: `${curPlayer} has won!!!`,
-        turn: `${curPlayer}'s turn`
+        win: `${game.getTurnsPlayerName()} has won!!!`,
+        turn: `${game.getTurnsPlayerName()}'s turn`
     };
 
     const elDisplay = document.getElementById( "text-display" );
@@ -143,7 +142,7 @@ const displayController = (() => {
         }
         
         if ( displayStrs[ toDisplay ] ) {
-            elDisplay.innerText = displayStrs[ toDisplay ]
+            elDisplay.innerText = game.getTurnsPlayerName() + "'s turn"  // curPlayer + displayStrs[ toDisplay ]
         } else {
             console.log( "display string not found!" )
         }
