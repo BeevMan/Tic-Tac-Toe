@@ -1,9 +1,25 @@
+// WANT TO MAKE THE GAME GRID THE CENTER OF THE SCREEN???
+    // AND EVERYTHING ELSE POSITIONED OFF OF THAT???
+
 const gameBoard = (() => {
     const allGrids = [ ... document.getElementsByClassName( "grid-piece" ) ];
 
-    const addListenersToGrids = () => {
+    const addListenersToGame = () => {
         allGrids.forEach(grid => {
             grid.addEventListener( "click", game.handleMove )
+        });
+
+        document.getElementById( "reset" ).addEventListener( "click", game.reset );
+
+        document.getElementById( "player1" ).addEventListener( "change", () => {
+            const p1Name = document.getElementById( "player1" ).value;
+            document.getElementById( "text-display" ).innerText = p1Name + displayController.displayStrs[ "start" ];
+        }); 
+    };
+
+    const resetGrids = () => {
+        allGrids.forEach( grid => {
+            grid.innerText = ""
         });
     };
 
@@ -22,7 +38,7 @@ const gameBoard = (() => {
 
     
 
-    return { winCombinations, allGrids, addListenersToGrids }
+    return { winCombinations, allGrids, addListenersToGame, resetGrids }
 
 })();
 
@@ -72,6 +88,14 @@ const game = (() => {
         return false
     };
 
+    const reset = () => {
+        // set all grid spots to empty strings
+        gameBoard.resetGrids();
+
+        // set the display to be the start of the game, hides the reset button as well.
+        displayController.setTextDisplay( "start" )
+    };
+
     let curSymbol = "X";
     const handleMove = ( e ) => {
 
@@ -108,7 +132,7 @@ const game = (() => {
         return curPlayers[ curSymbol.toLowerCase() ]
     };
 
-    return { handleMove, getPlayers, getTurnsPlayerName  }
+    return { handleMove, getPlayers, getTurnsPlayerName, reset }
 
 })();
 
@@ -127,20 +151,41 @@ const displayController = (() => {
     const textDisplay = () => {
        return elDisplay.innerText
     };
+
+    let ogResetDisplay;
+    const toggleResetDisplay = () => {
+        if ( document.getElementById( "reset" ).style.display !== "none" ) {
+            ogResetDisplay = document.getElementById( "reset" ).style.display;
+            // Hide the reset button
+            document.getElementById( "reset" ).style.display = "none";
+        } else {
+            // Restore / Unhide reset button
+            document.getElementById( "reset" ).style.display = ogResetDisplay;
+        }
+    };
+
     let ogDisplayVal;
+    const elNameInputs = document.getElementById( "name-inputs" );
+    const hideNameInputs = () => {
+        if ( elNameInputs.style.display !== "none" ) {
+            ogDisplayVal = elNameInputs.style.display;
+            elNameInputs.style.display = "none";
+        }
+    };
+    const restoreNameInputsDisplay = () => {
+        elNameInputs.style.display = ogDisplayVal
+    };
+
     const setTextDisplay = ( toDisplay ) => {
         if ( toDisplay === "win" || toDisplay === "tie" ) {
             // UNHIDE THE RESET BUTTON
-            const elNameInputs = document.getElementById( "name-inputs" );
-            elNameInputs.style.display = ogDisplayVal;
+            toggleResetDisplay();
+
+            restoreNameInputsDisplay()
         } else if ( toDisplay === "turn" ) {
-            const elNameInputs = document.getElementById( "name-inputs" );
-            if ( elNameInputs.style.display !== "none" ) {
-                ogDisplayVal = elNameInputs.style.display;
-                elNameInputs.style.display = "none";
-            }
+            hideNameInputs()
         } else if ( toDisplay === "start" || textDisplay() === "Player1, make the first move!" ) {
-            // HIDE THE RESET BUTTON
+            toggleResetDisplay()
         }
         
         if ( displayStrs[ toDisplay ] ) {
@@ -156,11 +201,12 @@ const displayController = (() => {
         }
     }
 
-    return { textDisplay, displayStrs, setTextDisplay }
+    return { displayStrs, textDisplay, setTextDisplay }
 
 })();
 
 
-// ADD EVENT LISTENER TO THE RESET BUTTON
 
-gameBoard.addListenersToGrids()
+gameBoard.addListenersToGame();
+
+displayController.setTextDisplay(); // to hide the reset button when the game first loads
